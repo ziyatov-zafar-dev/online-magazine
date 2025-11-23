@@ -555,6 +555,28 @@ public class DynamicBotService {
             return new ResponseDto<>(false, e.getMessage());
         }
     }
+    public ResponseDto<Void> sendPhoto(Long botId, Long chatId, String fileId, boolean protectContent, String caption
+    ) {
+        Optional<BotInstance> botInstance = findBotById(botId);
+        if (botInstance.isEmpty()) {
+            log.warn("Bot topilmadi, xabar yuborish imkonsiz. Bot ID: {}", botId);
+            return new ResponseDto<>(false, "Bot topilmadi, xabar yuborish imkonsiz. Bot ID: %s}".formatted(botId));
+        }
+        try {
+            SendPhoto message = new SendPhoto();
+            message.setChatId(chatId.toString());
+            message.setPhoto(new InputFile(fileId));
+            message.setCaption(caption);
+            message.setParseMode(ParseMode.HTML);
+            message.setProtectContent(protectContent);
+            botInstance.get().getBot().execute(message);
+            return new ResponseDto<>(true, "Ok");
+        } catch (TelegramApiException e) {
+            log.error("Xabar yuborishda xato. Bot ID: {}, Chat ID: {}. Xato: {}",
+                    botId, chatId, e.getMessage(), e);
+            return new ResponseDto<>(false, e.getMessage());
+        }
+    }
 
     public ResponseDto<Void> sendPhoto(Long botId, Long chatId, String fileId,
                                        ReplyKeyboardMarkup markup, boolean protectContent, String caption

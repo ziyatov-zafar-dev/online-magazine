@@ -1448,7 +1448,8 @@ public class AdminOnlineMagazineFunction {
                     📍 Endi ushbu filialning <b>joylashuvini (lokatsiya)</b> yuboring.
                     
                     🔹 <i>Lokatsiyani yuborish uchun Telegram'ning "📎" tugmasidan foydalaning.</i>""";
-            bot.sendPhoto(botInfo.getId(), user.getChatId(), true, caption, "src/images/for-location.png");
+//            bot.sendPhoto(botInfo.getId(), user.getChatId(), true, caption, "src/images/for-location.png");
+            bot.sendPhoto(botInfo.getId(), user.getChatId(), "https://t.me/asoiduvcghkjbsdal/3" , true,caption);
             eventCode(user, "get new branch location");
         } else if (eventCode.equals("get new branch location")) {
             String caption = """
