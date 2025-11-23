@@ -2,7 +2,10 @@ package org.example.newbot.dto;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,23 +13,11 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
+@Getter
+@Setter
+@Log4j2
+@ToString
 public class Json {
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Address getCountry() {
-        return country;
-    }
-
-    public void setCountry(Address country) {
-        this.country = country;
-    }
-
     @SerializedName("display_name")
     private String address;
     @SerializedName("address")
@@ -49,13 +40,13 @@ public class Json {
                 json = json.concat(line);
             return gson.fromJson(json, Json.class);
         } catch (Exception e) {
-//            log.error(e);
+            log.error(e);
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-//                    log.error("Error closing reader", e);
+                    log.error("Error closing reader", e);
                 }
             }
         }

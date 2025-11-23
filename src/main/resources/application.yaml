@@ -1,33 +1,27 @@
-
-
 spring:
   application:
     name: example-bot
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/he1
-#    username: postgres
-#    password: 122333
-#    driver-class-name: org.postgresql.Driver
-
+  #  datasource:
+  #    url: jdbc:postgresql://localhost:5432/newdb
+  #    username: postgres
+  #    password: 122333
+  #    driver-class-name: org.postgresql.Driver
 
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://dpg-d4gvlqadbo4c73b5tkig-a.oregon-postgres.render.com:5432/bot-maker-bot?sslmode=require
     username: postgresdb
     password: jb4SrknNSVaGyav6RnTvBFwVCapPRF5S
-
-
-
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-#server:
-#  port: 8080
+server:
+  port: 8080
 
 bot:
-  username: asjdkcnbot
-  token: 8536730825:AAGZYLBvCmySUxYachOWj-BkkofUnDCc4DE
+  username: https://t.me/bot_maker_1_robot
+  token: 7928701208:AAFR3seQux9zWJimMmfIWx9EQV_2D7CnLe8
 admin:
   chat:
     id: 7882316826

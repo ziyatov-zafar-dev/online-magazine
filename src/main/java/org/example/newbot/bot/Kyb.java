@@ -1,5 +1,6 @@
 package org.example.newbot.bot;
 
+import org.example.newbot.model.Channel;
 import org.example.newbot.model.Product;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -58,9 +59,16 @@ public class Kyb {
         return markup;
     }
 
+    public ReplyKeyboardMarkup requestContact(String word, String lang) {
+        return setKeyboards(new String[]{word, lang.equals("uz") ? backButton : backButtonRu}, 1);
+    }
+
 
     public InlineKeyboardButton createButton(String text, String data) {
         return InlineKeyboardButton.builder().callbackData(data).text(text).build();
+    }
+    public InlineKeyboardButton createButtonLink(String text, String data) {
+        return InlineKeyboardButton.builder().url(data).text(text).build();
     }
 
     public InlineKeyboardButton createButton(String text, Long data) {
@@ -123,10 +131,31 @@ public class Kyb {
         rows.add(row);
         return markup(rows);
     }
+
     public InlineKeyboardMarkup replyBtn(Long chatId, String lang) {
         InlineKeyboardButton replyButton = createButton(lang.equals("uz") ? "✍️ Javob yozish" : "✍️ Напишите ответ", "reply_%d".formatted(chatId));
         List<List<InlineKeyboardButton>> rows = List.of(List.of(replyButton));
         return new InlineKeyboardMarkup(rows);
     }
 
+    public InlineKeyboardMarkup subscribeChannel(List<Channel> channels, String lang) {
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        for (Channel channel : channels) {
+            button.setText(channel.getName());
+            button.setUrl(channel.getLink());
+            row.add(button);
+            rows.add(row);
+            row = new ArrayList<>();
+            button = new InlineKeyboardButton();
+        }
+        button = new InlineKeyboardButton();
+        if (lang == null) lang = "uz";
+        button.setText(lang.equals("ru") ? "✅ Подтверждение" : "✅ Tasdiqlash");
+        button.setCallbackData("success");
+        row.add(button);
+        rows.add(row);
+        return new InlineKeyboardMarkup(rows);
+    }
 }

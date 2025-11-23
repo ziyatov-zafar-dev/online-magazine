@@ -1,6 +1,6 @@
 package org.example.newbot.service.impl;
 
-
+import lombok.extern.log4j.Log4j2;
 import org.example.newbot.dto.ResponseDto;
 import org.example.newbot.model.Product;
 import org.example.newbot.model.ProductVariant;
@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Log4j2
 public class ProductVariantServiceImpl implements ProductVariantService {
     private final ProductVariantRepository productVariantRepository;
 
@@ -29,7 +30,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                     )
             );
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -42,7 +43,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             );
             return o.map(productVariant -> new ResponseDto<>(true, "Ok", productVariant)).orElseGet(() -> new ResponseDto<>(false, "Not found"));
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false , e.getMessage());
         }
     }
@@ -53,7 +54,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             productVariantRepository.save(product);
             return new ResponseDto<>(true, "Ok");
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -67,7 +68,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             }
             return new ResponseDto<>(true, "Ok", draft);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }

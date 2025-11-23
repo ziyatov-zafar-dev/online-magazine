@@ -1,5 +1,6 @@
 package org.example.newbot.service.impl;
 
+import lombok.extern.log4j.Log4j2;
 import org.example.newbot.dto.ResponseDto;
 import org.example.newbot.model.User;
 import org.example.newbot.repository.UserRepository;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-
+@Log4j2
 public class UserServiceIml implements UserService {
     private final UserRepository userRepository;
 
@@ -31,7 +32,7 @@ public class UserServiceIml implements UserService {
             }
             return new ResponseDto<>(true, "Ok", user);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -42,7 +43,7 @@ public class UserServiceIml implements UserService {
             userRepository.save(user);
             return new ResponseDto<>(true, "Ok");
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -58,7 +59,7 @@ public class UserServiceIml implements UserService {
             }
             throw new Exception("Not found user");
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -68,7 +69,7 @@ public class UserServiceIml implements UserService {
         try {
             return new ResponseDto<>(true , "Ok" , userRepository.findAll(Sort.by("id")));
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false , e.getMessage());
         }
     }
@@ -80,8 +81,18 @@ public class UserServiceIml implements UserService {
             Page<User> userPage = userRepository.findByUsernameContainingIgnoreCaseOrderByIdDesc(username, PageRequest.of(page, size));
             return new ResponseDto<>(true, "Ok", userPage);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false , e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseDto<Page<User>> searchUsers(String query, Integer page, int size) {
+        try {
+            return new ResponseDto<>(true , "Ok" , userRepository.searchUser(query, PageRequest.of(page, size)));
+        } catch (Exception e) {
+            log.error(e);
+            return new ResponseDto<>(false, e.getMessage());
         }
     }
 
@@ -91,7 +102,7 @@ public class UserServiceIml implements UserService {
             Page<User> userPage = userRepository.findByNicknameContainingIgnoreCaseOrderByIdDesc(nickname, PageRequest.of(page, size));
             return new ResponseDto<>(true, "Ok", userPage);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -102,7 +113,7 @@ public class UserServiceIml implements UserService {
             Page<User> userPage = userRepository.findAllByRoleOrderByIdAsc(role, PageRequest.of(page, size));
             return new ResponseDto<>(true, "Ok", userPage);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -113,7 +124,7 @@ public class UserServiceIml implements UserService {
             Page<User> users = userRepository.findAllByOrderByIdDesc(PageRequest.of(page, size));
             return new ResponseDto<>(true , "Ok", users);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false  , e.getMessage());
         }
     }

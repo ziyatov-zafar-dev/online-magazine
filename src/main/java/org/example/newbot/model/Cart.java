@@ -4,49 +4,27 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-//import lombok.Getter;
-//import lombok.Setter;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-//@Getter
-//@Setter
+@Getter
+@Setter
 public class Cart {
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Long getBotId() {
-        return botId;
-    }
-
-    public void setBotId(Long botId) {
-        this.botId = botId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
     private Long botId;
+    private Long userId;
     private String status;
+    private String type;
+    private Boolean active;
+    private String address;
+    private Double lat;
+    private Double lon;
+    private String paymentTypeUz;
+    private String paymentTypeRu;
+    private String phone;
+    private String deliveryType;
+    private Integer branchId;
 }

@@ -1,6 +1,6 @@
 package org.example.newbot.service.impl;
 
-//import lombok.extern.log4j.Log4j2;
+import lombok.extern.log4j.Log4j2;
 import org.example.newbot.dto.ResponseDto;
 import org.example.newbot.model.BotUser;
 import org.example.newbot.repository.BotInfoRepository;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-//@Log4j2
+@Log4j2
 public class BotUserServiceImpl implements BotUserService {
     private final BotUserRepository botUserRepository;
 
@@ -28,7 +28,7 @@ public class BotUserServiceImpl implements BotUserService {
             Optional<BotUser> checkBotUser = botUserRepository.findByUserIdAndBotId(botId, id);
             return checkBotUser.map(botUser -> new ResponseDto<>(true, "Ok", botUser)).orElseGet(() -> new ResponseDto<>(false, "User not found"));
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -39,7 +39,7 @@ public class BotUserServiceImpl implements BotUserService {
             Optional<BotUser> checkBotUser = botUserRepository.findUserInBot(botId, chatId);
             return checkBotUser.map(botUser -> new ResponseDto<>(true, "Ok", botUser)).orElseGet(() -> new ResponseDto<>(false, "User not found"));
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -50,7 +50,7 @@ public class BotUserServiceImpl implements BotUserService {
             List<BotUser> list = botUserRepository.findUsersByBotId(botId);
             return new ResponseDto<>(true, "Ok", list);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -61,7 +61,7 @@ public class BotUserServiceImpl implements BotUserService {
             Page<BotUser> botUsers = botUserRepository.searchUsers(botId, searchValue, PageRequest.of(page, size));
             return new ResponseDto<>(true, "Ok", botUsers);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -72,7 +72,7 @@ public class BotUserServiceImpl implements BotUserService {
             botUserRepository.save(user);
             return new ResponseDto<>(true, "Ok");
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -83,7 +83,7 @@ public class BotUserServiceImpl implements BotUserService {
             List<BotUser> userPage = botUserRepository.findUsersByBotIdAndRole(botId, role);
             return new ResponseDto<>(true, "Ok", userPage);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -94,7 +94,7 @@ public class BotUserServiceImpl implements BotUserService {
             Page<BotUser> userPage = botUserRepository.findUsersByBotIdAndRole(botId, role, PageRequest.of(page, size));
             return new ResponseDto<>(true, "Ok", userPage);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -105,7 +105,7 @@ public class BotUserServiceImpl implements BotUserService {
             Page<BotUser> res = botUserRepository.findUsersByBotId(botId, PageRequest.of(page, size));
             return new ResponseDto<>(true, "Ok", res);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }

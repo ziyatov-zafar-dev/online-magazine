@@ -2,200 +2,51 @@ package org.example.newbot.model;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-
-
+@Getter
 @Entity
-
+@Setter
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String firstname;
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public Long getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(Long chatId) {
-        this.chatId = chatId;
-    }
-
-    public Integer getPage() {
-        return page;
-    }
-
-    public void setPage(Integer page) {
-        this.page = page;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public String getEventCode() {
-        return eventCode;
-    }
-
-    public void setEventCode(String eventCode) {
-        this.eventCode = eventCode;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Long getChannelId() {
-        return channelId;
-    }
-
-    public void setChannelId(Long channelId) {
-        this.channelId = channelId;
-    }
-
-    public String getLang() {
-        return lang;
-    }
-
-    public void setLang(String lang) {
-        this.lang = lang;
-    }
-
-    public String getHelperPhone() {
-        return helperPhone;
-    }
-
-    public void setHelperPhone(String helperPhone) {
-        this.helperPhone = helperPhone;
-    }
-
-    public String getFindUsername() {
-        return findUsername;
-    }
-
-    public void setFindUsername(String findUsername) {
-        this.findUsername = findUsername;
-    }
-
-    public String getFindNickname() {
-        return findNickname;
-    }
-
-    public void setFindNickname(String findNickname) {
-        this.findNickname = findNickname;
-    }
-
-    public Integer getMessageId() {
-        return messageId;
-    }
-
-    public void setMessageId(Integer messageId) {
-        this.messageId = messageId;
-    }
-
-    public String getHelperRole() {
-        return helperRole;
-    }
-
-    public void setHelperRole(String helperRole) {
-        this.helperRole = helperRole;
-    }
-
-    public String getHelperBotType() {
-        return helperBotType;
-    }
-
-    public void setHelperBotType(String helperBotType) {
-        this.helperBotType = helperBotType;
-    }
-
-    public Long getLoadId() {
-        return loadId;
-    }
-
-    public void setLoadId(Long loadId) {
-        this.loadId = loadId;
-    }
-
     private String lastname;
     private String nickname;
     private String username;
     @Column(unique = true)
     private Long chatId;
-    private Integer page ;
+    private Integer page;
     private String phone;
     private String role;
     private String eventCode;
     private Long userId;
-    private Long channelId;
+    private Integer channelId;
     private String lang;
-    private String helperPhone ;
+    private String helperPhone;
     private String findUsername;
     private String findNickname;
     private Integer messageId;
     private String helperRole;
     private String helperBotType;
-/*
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Load> loads;
-*/
+    private Boolean forBotActive;
+    private Double balance;
+    private Long botPriceId;
+    private Boolean hasReply;
+
+    private Boolean isNew;
+    /*
+        @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+        private List<Load> loads;
+    */
     private Long loadId;
+    private Long botId;
+    private String queryText;
+
+    private Double helperBalance = 0.0;
+    private Long helperChatId;
 
 }

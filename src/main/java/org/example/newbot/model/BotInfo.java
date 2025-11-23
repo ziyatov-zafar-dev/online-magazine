@@ -1,96 +1,18 @@
 package org.example.newbot.model;
 
 import jakarta.persistence.*;
-
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "bot_info")
-
+@Table(name = "bot_inf1o")
+@Getter
+@Setter
 public class BotInfo {
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getBotUsername() {
-        return botUsername;
-    }
-
-    public void setBotUsername(String botUsername) {
-        this.botUsername = botUsername;
-    }
-
-    public String getBotToken() {
-        return botToken;
-    }
-
-    public void setBotToken(String botToken) {
-        this.botToken = botToken;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public List<Long> getAdminChatIds() {
-        return adminChatIds;
-    }
-
-    public void setAdminChatIds(List<Long> adminChatIds) {
-        this.adminChatIds = adminChatIds;
-    }
-
-    public List<BotUser> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<BotUser> users) {
-        this.users = users;
-    }
-
-    public Boolean getIsFree() {
-        return isFree;
-    }
-
-    public void setIsFree(Boolean free) {
-        isFree = free;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

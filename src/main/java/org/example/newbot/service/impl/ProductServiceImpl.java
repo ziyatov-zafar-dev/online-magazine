@@ -1,7 +1,7 @@
 package org.example.newbot.service.impl;
 
-//import lombok.extern.log4j.Log4j;
-//import lombok.extern.log4j.Log4j2;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import org.example.newbot.dto.ResponseDto;
 import org.example.newbot.model.Product;
 import org.example.newbot.repository.CategoryRepository;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-//@Log4j2
+@Log4j2
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
@@ -117,7 +117,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private <T> ResponseDto<T> exception(Exception e) {
-        System.out.println(e);
+        log.error(e);
         return new ResponseDto<>(false, e.getMessage());
     }
 }

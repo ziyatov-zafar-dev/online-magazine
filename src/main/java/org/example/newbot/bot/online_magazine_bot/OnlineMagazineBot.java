@@ -1,6 +1,6 @@
 package org.example.newbot.bot.online_magazine_bot;
 
-//import lombok.extern.log4j.Log4j2;
+import lombok.extern.log4j.Log4j2;
 import org.example.newbot.bot.Status;
 import org.example.newbot.bot.online_magazine_bot.admin.AdminOnlineMagazineFunction;
 import org.example.newbot.bot.online_magazine_bot.user.BranchUtil;
@@ -26,7 +26,7 @@ import static org.example.newbot.bot.StaticVariable.mainMenu;
 import static org.example.newbot.bot.StaticVariable.mainMenuRu;
 import static org.example.newbot.bot.Status.OPEN;
 
-//@Log4j2
+@Log4j2
 public class OnlineMagazineBot {
     private final DynamicBotService bot;
     private final BotInfoRepository botInfoRepository;
@@ -45,6 +45,7 @@ public class OnlineMagazineBot {
     }
 
     public void onlineMagazineBotMenu(BotInfo botInfo, Long chatId, Update update, Long adminChatId) {
+
         boolean isAdmin = false;
         for (Long x : botInfo.getAdminChatIds()) {
             if (x.equals(chatId)) {
@@ -55,6 +56,7 @@ public class OnlineMagazineBot {
         ResponseDto<BotUser> checkUser = botUserService.findByUserChatId(chatId, botInfo.getId());
         String username, firstname, lastname, nickname;
         if (update.hasMessage()) {
+            bot.setActive(botInfo.getId(), chatId);
             Message message = update.getMessage();
             username = message.getFrom().getUserName();
             firstname = message.getFrom().getFirstName();
@@ -89,6 +91,8 @@ public class OnlineMagazineBot {
         botUserService.save(user);
         String eventCode = user.getEventCode();
         boolean inAdmin = isAdmin || chatId.equals(adminChatId);
+        if (user.getRole().equals("block"))
+            return;
         if (inAdmin) {
             if (!adminChatId.equals(user.getChatId())) user.setRole("admin");
             else user.setRole("user");
@@ -142,8 +146,7 @@ public class OnlineMagazineBot {
                             case "change_address", "change_phone", "change_description", "change_destination",
                                  "change_working_hours", "change_name" ->
                                     adminFunction.editBranch(botInfo, user, text, null, message.getMessageId());
-                            case "add_img" ->
-                                    adminFunction.addImg(botInfo.getId(),user,text,message);
+                            case "add_img" -> adminFunction.addImg(botInfo.getId(), user, text, message);
                         }
                     }
                 } else if (message.hasPhoto()) {
@@ -156,7 +159,7 @@ public class OnlineMagazineBot {
                         case "change_image" ->
                                 adminFunction.editBranch(botInfo, user, message.getPhoto().get(message.getPhoto().size() - 1).getFileId(), null, message.getMessageId());
                         case "add_img" ->
-                                adminFunction.addImg(botInfo.getId(),user,message.getPhoto().get(message.getPhoto().size()-1));
+                                adminFunction.addImg(botInfo.getId(), user, message.getPhoto().get(message.getPhoto().size() - 1));
                     }
                 } else if (message.hasLocation()) {
                     if (eventCode.equals("get new branch location")) {
@@ -171,6 +174,14 @@ public class OnlineMagazineBot {
                 Integer messageId = callbackQuery.getMessage().getMessageId();
                 if (data.startsWith("reply")) {
                     userFunction.reply(botInfo, user.getChatId(), user, Long.valueOf(data.split("_")[1]), messageId, true);
+                    return;
+                }
+                if (data.startsWith("finish")){
+                    adminFunction.finish(botInfo , user,data,messageId,callbackQuery);
+                    return;
+                }
+                if (data.startsWith("cancelorder")){
+                    adminFunction.finish1(botInfo , user,data,messageId,callbackQuery);
                     return;
                 }
                 switch (eventCode) {
@@ -202,7 +213,7 @@ public class OnlineMagazineBot {
                         userFunction.start(botInfo, user, false);
                     } else {
                         switch (eventCode) {
-                            case "reply message" -> userFunction.replyMessage(botInfo, user, text,false);
+                            case "reply message" -> userFunction.replyMessage(botInfo, user, text, false);
                             case "request_lang" -> userFunction.requestLang(botInfo, user, text);
                             case "request_contact" -> userFunction.requestContact(botInfo, user, text);
                             case "menu" -> userFunction.menu(botInfo, user, text);
@@ -210,6 +221,14 @@ public class OnlineMagazineBot {
                             case "deliveryType" -> userFunction.deliveryType(botInfo, user, text);
                             case "chooseLocation" -> userFunction.chooseLocation(botInfo, user, text);
                             case "locationList" -> userFunction.locationList(botInfo, user, text);
+                            case "chooseBranch" -> userFunction.chooseBranch(botInfo, user, text);
+                            case "deliveryCategoryMenu" -> userFunction.deliveryCategoryMenu(botInfo, user, text);
+                            case "pickupCategoryMenu" -> userFunction.pickupCategoryMenu(botInfo, user, text);
+                            case "pickupProductMenu" -> userFunction.pickupProductMenu(botInfo, user, text);
+                            case "deliveryProductMenu" -> userFunction.deliveryProductMenu(botInfo, user, text);
+                            case "chooseProductVariant" -> userFunction.chooseProductVariant(botInfo,user,text);
+                            case "getPhoneNumber" -> userFunction.getPhoneNumber(botInfo , user,text);
+                            case "branchLists" -> userFunction.branchLists(botInfo , user,text);
                         }
                     }
                 } else if (message.hasContact()) {
@@ -226,7 +245,11 @@ public class OnlineMagazineBot {
 //                    }
 //                    bot.sendMessage(botInfo.getId(), user.getChatId(),"Sizga eng yaqin filial"+aboutBranch(BranchUtil.findNearestBranch(branches,location.getLatitude(),location.getLongitude())));
 
-                    if (eventCode.equals("chooseLocation")) userFunction.chooseLocation(botInfo, user, location);
+                    switch (eventCode) {
+                        case "chooseLocation" -> userFunction.chooseLocation(botInfo, user, location);
+                        case "chooseBranch" -> userFunction.chooseBranch(botInfo, user, location);
+                        case "branchLists" -> userFunction.branchLists(botInfo , user,location);
+                    }
                 }
             } else if (update.hasCallbackQuery()) {
                 CallbackQuery callbackQuery = update.getCallbackQuery();
@@ -234,11 +257,19 @@ public class OnlineMagazineBot {
                 Integer messageId = callbackQuery.getMessage().getMessageId();
                 if (data.startsWith("reply")) {
                     userFunction.reply(botInfo, user.getChatId(), user, Long.valueOf(data.split("_")[1]), messageId, false);
+                } else if (data.startsWith("cancelorder")) {
+                    userFunction.cancelOrder(botInfo , user,data,callbackQuery,messageId) ;
                 } else {
+                    if (eventCode.equals("chooseProductVariant")){
+                       userFunction.chooseProductVariant(botInfo,user,data , messageId,callbackQuery);
+                    } else if (eventCode.equals("showBasket")) {
+                        userFunction.showBasket(botInfo,user,data,messageId,callbackQuery);
+                    }
                 }
             }
         }
     }
+
     private String aboutBranch(Branch branch) {
         return """
                 🏢 <b>Filial haqida ma'lumot:</b>

@@ -1,6 +1,6 @@
 package org.example.newbot.service.impl;
 
-//import lombok.extern.log4j.Log4j2;
+import lombok.extern.log4j.Log4j2;
 import org.example.newbot.dto.ResponseDto;
 import org.example.newbot.model.Category;
 import org.example.newbot.repository.CategoryRepository;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-//@Log4j2
+@Log4j2
 public class CategoryServiceImpl implements CategoryService {
     @Override
     public ResponseDto<List<Category>> findAllByBotId(Long botId) {
@@ -20,7 +20,7 @@ public class CategoryServiceImpl implements CategoryService {
                     categoryRepository.findAllByBotIdAndStatusAndActiveOrderById(botId, "open", true)
             );
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -34,7 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
             }
             return new ResponseDto<>(true, "Ok", category);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
             }
             return new ResponseDto<>(true, "Ok", category);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -59,7 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
             Optional<Category>cOp = categoryRepository.findById(id);
             return cOp.map(category -> new ResponseDto<>(true, "Ok", category)).orElseGet(() -> new ResponseDto<>(false, "Not found category"));
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -73,7 +73,7 @@ public class CategoryServiceImpl implements CategoryService {
             }
             return new ResponseDto<>(true, "Ok", category);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -91,7 +91,7 @@ public class CategoryServiceImpl implements CategoryService {
             categoryRepository.save(category);
             return new ResponseDto<>(true, "Ok");
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }
@@ -102,7 +102,7 @@ public class CategoryServiceImpl implements CategoryService {
             categoryRepository.save(category);
             return new ResponseDto<>(true, "Ok");
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseDto<>(false, e.getMessage());
         }
     }

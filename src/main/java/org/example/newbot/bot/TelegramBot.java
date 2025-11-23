@@ -1,6 +1,10 @@
 package org.example.newbot.bot;
 
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.*;
+import lombok.extern.log4j.Log4j2;
 import org.example.newbot.bot.roleadmin.AdminFunction;
 import org.example.newbot.bot.roleadmin.AdminKyb;
 import org.example.newbot.bot.roleadmin.RoleAdmin;
@@ -8,18 +12,30 @@ import org.example.newbot.bot.roleuser.RoleUser;
 import org.example.newbot.bot.roleuser.UserFunction;
 import org.example.newbot.bot.roleuser.UserKyb;
 import org.example.newbot.dto.ResponseDto;
+import org.example.newbot.model.BotInfo;
+import org.example.newbot.model.BotUser;
+import org.example.newbot.model.Channel;
 import org.example.newbot.model.User;
 import org.example.newbot.repository.BotInfoRepository;
+import org.example.newbot.repository.BotPriceRepository;
+import org.example.newbot.repository.ChannelRepository;
+import org.example.newbot.repository.PaymentRepository;
 import org.example.newbot.service.BotPriceService;
 import org.example.newbot.service.DynamicBotService;
 import org.example.newbot.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.CopyMessage;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -36,6 +52,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Log4j2
+@Getter
+@RequiredArgsConstructor
+
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final UserService userService;
@@ -45,34 +65,26 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final DynamicBotService dynamicBotService;
     private final TelegramBotsApi telegramBotsApi;
     private final BotInfoRepository botInfoRepository;
-//    @Value("${bot.token}")
-//    public String botToken;
-//    @Value("${bot.username}")
-//    public String botUsername;
-    @Value("${size}")
-    public int size;
-    @Value("${admin.chat.id}")
-    private Long superAdminChatId;
-
-    public TelegramBot(UserService userService, UserKyb userKyb, AdminKyb adminKyb, BotPriceService botPriceService, DynamicBotService dynamicBotService, TelegramBotsApi telegramBotsApi, BotInfoRepository botInfoRepository) {
-        this.userService = userService;
-        this.userKyb = userKyb;
-        this.adminKyb = adminKyb;
-        this.botPriceService = botPriceService;
-        this.dynamicBotService = dynamicBotService;
-        this.telegramBotsApi = telegramBotsApi;
-        this.botInfoRepository = botInfoRepository;
-    }
-
-    @Override
-    public String getBotUsername() {
-        return "this.botUsername";
-    }
+    private final BotPriceRepository botPriceRepository;
+    private final PaymentRepository paymentRepository;
+    private final ChannelRepository channelRepository;
 
     @Override
     public String getBotToken() {
-        return "8540950629:AAHgN-Rx-pf5KyG0kyRHIj0TnQjhOI6BO6k"; // botToken @Value orqali yuklanadi
+        return "7928701208:AAFR3seQux9zWJimMmfIWx9EQV_2D7CnLe8" ;
     }
+
+    //    @Value("${bot.token}")
+//    public String botToken;
+    @Value("${bot.username}")
+    public String botUsername;
+    @Value("${size}")
+    public int size;
+    @Value("${admin.chat.id}")
+    public Long superAdminChatId;
+
+
+    @SneakyThrows
     @Override
     public void onUpdateReceived(Update update) {
         String username, firstname, lastname, nickname;
@@ -83,6 +95,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             firstname = message.getFrom().getFirstName();
             lastname = message.getFrom().getLastName();
             chatId = message.getChatId();
+
         } else if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             username = callbackQuery.getFrom().getUserName();
@@ -100,17 +113,23 @@ public class TelegramBot extends TelegramLongPollingBot {
             user.setChatId(chatId);
             user.setEventCode("aLOM");
             user.setRole("user");
+            user.setBalance(0.0);
+            user.setHelperBalance(0.0);
+            user.setPage(0);
         }
         user.setFirstname(firstname);
         user.setLastname(lastname);
         user.setNickname(nickname);
         user.setUsername(username);
         userService.save(user);
+
         if (chatId.equals(superAdminChatId)) {
             new RoleAdmin(new AdminFunction(
                     this, userService, adminKyb,
                     botPriceService, dynamicBotService,
-                    telegramBotsApi, botInfoRepository
+                    telegramBotsApi, botInfoRepository,
+                    botPriceRepository, paymentRepository,
+                    channelRepository
             )).menu(user, update);
         } else {
             user.setRole("user");
@@ -118,46 +137,30 @@ public class TelegramBot extends TelegramLongPollingBot {
             if (role.equals("user")) {
                 new RoleUser(new UserFunction(
                         this, userService, userKyb,
-                        botPriceService
+                        botPriceService, dynamicBotService,
+                        telegramBotsApi, botInfoRepository,
+                        channelRepository, botPriceRepository,
+                        paymentRepository
                 )).menu(user, update);
             } else return;
         }
     }
 
-    public void sendMessage(Long chatId, String text)  {
-        try {
-            execute(
-                    SendMessage
-                            .builder()
-                            .chatId(chatId)
-                            .text(text)
-                            .parseMode(ParseMode.HTML)
-                            .disableWebPagePreview(true)
-                            .build()
-            );
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+    @SneakyThrows
+    public void sendMessage(Long chatId, String text) {
+        execute(
+                SendMessage
+                        .builder()
+                        .chatId(chatId)
+                        .text(text)
+                        .parseMode(ParseMode.HTML)
+                        .disableWebPagePreview(true)
+                        .build()
+        );
     }
 
-    public void sendMessage(Long chatId, String text, ReplyKeyboardMarkup markup)  {
-        try {
-            execute(
-                    SendMessage
-                            .builder()
-                            .chatId(chatId)
-                            .text(text)
-                            .parseMode(ParseMode.HTML)
-                            .replyMarkup(markup)
-                            .disableWebPagePreview(true)
-                            .build()
-            );
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void sendMessage(Long chatId, String text, InlineKeyboardMarkup markup) throws TelegramApiException {
+    @SneakyThrows
+    public void sendMessage(Long chatId, String text, ReplyKeyboardMarkup markup) {
         execute(
                 SendMessage
                         .builder()
@@ -170,8 +173,55 @@ public class TelegramBot extends TelegramLongPollingBot {
         );
     }
 
+    public void sendMessageToChannel(String username, String text, InlineKeyboardMarkup markup) {
+        try {
+            execute(
+                    SendMessage
+                            .builder()
+                            .chatId(username)
+                            .text(text)
+                            .parseMode(ParseMode.HTML)
+                            .replyMarkup(markup)
+                            .disableWebPagePreview(true)
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error(e);
+        }
+    }
 
-    public void sendMessage(Long chatId, String text, Boolean remove) throws TelegramApiException {
+
+    @SneakyThrows
+    public void sendMessage(Long chatId, String text, ReplyKeyboardMarkup markup, boolean protectContent) {
+        execute(
+                SendMessage
+                        .builder()
+                        .chatId(chatId)
+                        .text(text)
+                        .parseMode(ParseMode.HTML)
+                        .replyMarkup(markup)
+                        .disableWebPagePreview(true)
+                        .protectContent(protectContent)
+                        .build()
+        );
+    }
+
+    @SneakyThrows
+    public void sendMessage(Long chatId, String text, InlineKeyboardMarkup markup) {
+        execute(
+                SendMessage
+                        .builder()
+                        .chatId(chatId)
+                        .text(text)
+                        .parseMode(ParseMode.HTML)
+                        .replyMarkup(markup)
+                        .disableWebPagePreview(true)
+                        .build()
+        );
+    }
+
+    @SneakyThrows
+    public void sendMessage(Long chatId, String text, Boolean remove) {
         execute(
                 SendMessage
                         .builder()
@@ -184,20 +234,24 @@ public class TelegramBot extends TelegramLongPollingBot {
         );
     }
 
+    @SneakyThrows
+    public void alertMessage(CallbackQuery callbackQuery, String alertMessageText) {
+        try {
 
-    public void alertMessage(CallbackQuery callbackQuery, String alertMessageText) throws TelegramApiException {
+            String callbackQueryId = callbackQuery.getId();
+            AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+            answerCallbackQuery.setShowAlert(true);
+            answerCallbackQuery.setText(alertMessageText);
+            answerCallbackQuery.setCallbackQueryId(callbackQueryId);
 
-        String callbackQueryId = callbackQuery.getId();
-        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
-        answerCallbackQuery.setShowAlert(true);
-        answerCallbackQuery.setText(alertMessageText);
-        answerCallbackQuery.setCallbackQueryId(callbackQueryId);
-
-        execute(answerCallbackQuery);
+            execute(answerCallbackQuery);
+        } catch (TelegramApiException e) {
+            log.error(e);
+        }
     }
 
-
-    public void sendVideo(Long chatId, String fileId, String caption, InlineKeyboardMarkup markup, boolean isAdmin) throws TelegramApiException {
+    @SneakyThrows
+    public void sendVideo(Long chatId, String fileId, String caption, InlineKeyboardMarkup markup, boolean isAdmin) {
         execute(
                 SendVideo.builder()
                         .video(new InputFile(fileId))
@@ -214,7 +268,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(DeleteMessage.builder().messageId(messageId).chatId(chatId).build());
         } catch (TelegramApiException e) {
-            System.out.println(e);
+            log.error(e);
         }
     }
 
@@ -222,7 +276,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(EditMessageText.builder().chatId(chatId).messageId(messageId).text(text).replyMarkup(markup).parseMode("HTML").build());
         } catch (TelegramApiException e) {
-            System.out.println(e);
+            log.error(e);
         }
     }
 
@@ -230,7 +284,117 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(EditMessageText.builder().chatId(chatId).messageId(messageId).text(text).parseMode("HTML").build());
         } catch (TelegramApiException e) {
-            System.out.println(e);
+            log.error(e);
         }
+    }
+
+    private void setActions(BotInfo botInfo, Long chatId) {
+        SendChatAction action = new SendChatAction();
+        action.setChatId(chatId);
+        action.setAction(ActionType.TYPING);
+        try {
+            execute(action);
+        } catch (TelegramApiException e) {
+            log.error(e);
+        }
+    }
+
+    public void sendPhoto(Long chatId, String fileId, String caption, ReplyKeyboardMarkup markup) {
+        try {
+            execute(
+                    SendPhoto
+                            .builder()
+                            .chatId(chatId)
+                            .caption(caption)
+                            .photo(new InputFile(fileId))
+                            .parseMode("HTML")
+                            .replyMarkup(markup)
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error(e);
+        }
+    }
+
+    public void sendPhoto(Long chatId, String fileId, String caption) {
+        try {
+            execute(
+                    SendPhoto
+                            .builder()
+                            .chatId(chatId)
+                            .caption(caption)
+                            .photo(new InputFile(fileId))
+                            .parseMode("HTML")
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error(e);
+        }
+    }
+
+    public void sendPhoto(Long chatId, String fileId, String caption, InlineKeyboardMarkup markup) {
+        try {
+            execute(
+                    SendPhoto
+                            .builder()
+                            .chatId(chatId)
+                            .caption(caption)
+                            .photo(new InputFile(fileId))
+                            .parseMode("HTML")
+                            .replyMarkup(markup)
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error(e);
+        }
+    }
+
+    private boolean inArray(String s, String[] a) {
+        for (String string : a) {
+            if (string.equals(s)) return true;
+        }
+        return false;
+    }
+
+    public List<Channel> getChannels(long chatId) {
+        List<Channel> list = channelRepository.findAllByActiveIsTrueAndStatusOrderByIdAsc(Status.OPEN);
+        List<Channel> channels = new ArrayList<>(list.size());
+        String[] types = {"member", "creator", "administrator"};
+        for (Channel channel : list) {
+            if (!inArray(getChatMember(channel.getUsername(), chatId), types)) {
+                channels.add(channel);
+            }
+        }
+        return channels;
+    }
+
+    public String getChatMember(String chatId, long userId) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "https://api.telegram.org/bot" + "7928701208:AAFR3seQux9zWJimMmfIWx9EQV_2D7CnLe8" + "/getChatMember" + "?chat_id=" + chatId + "&user_id=" + userId;
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response.getBody());
+            if (rootNode.path("ok").asBoolean()) {
+                return rootNode.path("result").path("status").asText();
+            } else {
+                return "error";
+            }
+        } catch (Exception e) {
+            log.error(e);
+            return "error";
+        }
+    }
+
+    @SneakyThrows
+    public void copyMessage(Long userChatId, Long fromChatId, Integer messageId, InlineKeyboardMarkup markup) {
+        execute(CopyMessage
+                .builder()
+                .chatId(userChatId)
+                .fromChatId(fromChatId)
+                .messageId(messageId)
+                .replyMarkup(markup)
+                .build());
+
     }
 }
