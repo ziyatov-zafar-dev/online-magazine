@@ -32,32 +32,32 @@ public class DynamicBotConfig {
     public CommandLineRunner initializeBots(TelegramBotsApi botsApi,
                                             BotInfoRepository botInfoRepository,
                                             DynamicBotService botService, BotPriceRepository botPriceRepository, PaymentRepository paymentRepository) {
-        for (BotPrice botPrice : botPriceRepository.findAll()) {
-            botPrice.setActive(false);
-            botPrice.setType(UUID.randomUUID().toString() + botPrice.getId());
-            botPrice.setTypeText(UUID.randomUUID().toString() + botPrice.getId() + botPrice.getId());
+//        for (BotPrice botPrice : botPriceRepository.findAll()) {
+//            botPrice.setActive(false);
+//            botPrice.setType(UUID.randomUUID().toString() + botPrice.getId());
+//            botPrice.setTypeText(UUID.randomUUID().toString() + botPrice.getId() + botPrice.getId());
+//            botPriceRepository.save(botPrice);
+//        }
+        if (botPriceRepository.findAll().isEmpty()) {
+            BotPrice botPrice = new BotPrice();
+            botPrice.setDescription("Online dokon uchun bot, vazifasi mahsulotlaringizni online tarzda sotish uchun imkoniyat yaratib beradi");
+            botPrice.setActive(true);
+            botPrice.setPrice(2000000D);
+            botPrice.setStatus("open");
+            botPrice.setType("online-magazine");
+            botPrice.setTypeText("Onlayn dokon");
             botPriceRepository.save(botPrice);
+
+//
+//            botPrice = new BotPrice();
+//            botPrice.setDescription("Online kurs uchun bot, vazifasi kurslarni online tarzda sotish uchun imkoniyat yaratib beradi");
+//            botPrice.setActive(true);
+//            botPrice.setPrice(2000000D);
+//            botPrice.setStatus("open");
+//            botPrice.setType("online-course");
+//            botPrice.setTypeText("Onlayn kurs");
+//            botPriceRepository.save(botPrice);
         }
-        BotPrice botPrice = new BotPrice();
-        botPrice.setDescription("Online dokon uchun bot, vazifasi mahsulotlaringizni online tarzda sotish uchun imkoniyat yaratib beradi");
-        botPrice.setActive(true);
-        botPrice.setPrice(2000000D);
-        botPrice.setStatus("open");
-        botPrice.setType("online-magazine");
-        botPrice.setTypeText("Onlayn dokon");
-        botPriceRepository.save(botPrice);
-
-
-        botPrice = new BotPrice();
-        botPrice.setDescription("Online kurs uchun bot, vazifasi kurslarni online tarzda sotish uchun imkoniyat yaratib beradi");
-        botPrice.setActive(true);
-        botPrice.setPrice(2000000D);
-        botPrice.setStatus("open");
-        botPrice.setType("online-course");
-        botPrice.setTypeText("Onlayn kurs");
-        botPriceRepository.save(botPrice);
-
-
 
 
         updatePayment(paymentRepository);
