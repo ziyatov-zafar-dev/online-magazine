@@ -7,6 +7,7 @@ import org.example.newbot.repository.BotInfoRepository;
 import org.example.newbot.repository.BranchRepository;
 import org.example.newbot.service.*;
 import org.springframework.data.domain.Page;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Location;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -1105,7 +1106,7 @@ public class AdminOnlineMagazineFunction {
                     variants = productVariantService.findAllByProductId(user.getProductId()).getData();
                     user.setProductVariantId(variant.getId());
                     botUserService.save(user);
-                    bot.sendMessage(botInfo.getId(), user.getChatId(), text , kyb.backBtn);
+                    bot.sendMessage(botInfo.getId(), user.getChatId(), text, kyb.backBtn);
                     bot.sendPhoto(botInfo.getId(), user.getChatId(), variant.getImg(), kyb.getProductVariantsAndEditProductBtn(variants, user.getProductVariantId()), false, "✅ Muvaffaqiyatli qo'shildi" + aboutCategoryWithPhoto(true, product, variant.getPrice(), variant, "uz"));
                     eventCode(user, "crud product");
                 } else if (text.equals("❌ Yo'q")) {
@@ -1274,7 +1275,8 @@ public class AdminOnlineMagazineFunction {
                     📍 Endi ushbu filialning <b>joylashuvini (lokatsiya)</b> yuboring.
                     
                     🔹 <i>Lokatsiyani yuborish uchun Telegram'ning "📎" tugmasidan foydalaning.</i>""";
-            bot.sendPhoto(botInfo.getId(), user.getChatId(), true, caption, "src/images/for-location.png");
+//            bot.sendPhoto(botInfo.getId(), user.getChatId(), true, caption, "src/images/for-location.png");
+            bot.sendPhoto(botInfo.getId(), user.getChatId(), "https://t.me/asoiduvcghkjbsdal/3", true, caption);
             eventCode(user, "get new branch location");
         } else if (eventCode.equals("get new branch location")) {
             String caption = """
@@ -1561,11 +1563,11 @@ public class AdminOnlineMagazineFunction {
                 if (editBranch != null) {
                     bot.sendMessage(botInfo.getId(), user.getChatId(),
                             """
-                            ❌ <b>Operatsiya bekor qilindi!</b>
-                            
-                            Sababi: bunday nomli boshqa filial allaqachon mavjud.
-                            Iltimos, ro‘yxatdan birini tanlang yoki yangi filial qo'shing.
-                            """, kyb.branches(branches));
+                                    ❌ <b>Operatsiya bekor qilindi!</b>
+                                    
+                                    Sababi: bunday nomli boshqa filial allaqachon mavjud.
+                                    Iltimos, ro‘yxatdan birini tanlang yoki yangi filial qo'shing.
+                                    """, kyb.branches(branches));
 
                     eventCode(user, "get branches lists");
                     getBranchesLists(botInfo, user, branch.getName());
@@ -1627,7 +1629,7 @@ public class AdminOnlineMagazineFunction {
             if (branch.getHasImage()) {
 
                 bot.sendPhoto(id, user.getChatId(), branch.getImageUrl(), kyb.crudBranch(false), false, aboutBranch(branch));
-            } else bot.sendMessage(id, user.getChatId(), aboutBranch(branch) , kyb.crudBranch(false));
+            } else bot.sendMessage(id, user.getChatId(), aboutBranch(branch), kyb.crudBranch(false));
         } else {
             bot.deleteMessage(id, message.getChatId(), message.getMessageId());
         }
