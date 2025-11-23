@@ -350,7 +350,7 @@ public class AdminOnlineMagazineFunction {
                 ⚠️ *Kutilmagan xatolik yuz berdi* ⚠️
                 
                 Iltimos, birozdan keyin qayta urinib ko'ring.
-                Agar muammo takrorlansa, @me_mrx ga murojaat qiling.""", kyb.usersPage());
+                Agar muammo takrorlansa, @ziyatov_zafar_official ga murojaat qiling.""", kyb.usersPage());
     }
 
     private void errorResponseUserPage(BotUser user, Long botId, ReplyKeyboardMarkup markup) {
@@ -358,7 +358,7 @@ public class AdminOnlineMagazineFunction {
                 ⚠️ *Kutilmagan xatolik yuz berdi* ⚠️
                 
                 Iltimos, birozdan keyin qayta urinib ko'ring.
-                Agar muammo takrorlansa, @me_mrx ga murojaat qiling.""", markup);
+                Agar muammo takrorlansa, @ziyatov_zafar_official ga murojaat qiling.""", markup);
     }
 
 
@@ -452,7 +452,7 @@ public class AdminOnlineMagazineFunction {
                         Siz o'zingizni o'zingiz bloklay olmaysiz !
                         
                         Boshqa foydalanuvchini tanlang yoki 
-                        @me_mrx bilan bog'laning.""";
+                        @ziyatov_zafar_official bilan bog'laning.""";
 
                 bot.alertMessage(botId, callbackQuery, warningMessage);
                 return;
@@ -463,8 +463,8 @@ public class AdminOnlineMagazineFunction {
                         
                         Siz adminlarni bloklay olmaysiz !
                         
-                        Boshqa foydalanuvchini tanlang yoki 
-                        @me_mrx bilan bog'laning.""";
+                        Boshqa foydalanuvchini tanlang yoki
+                        @ziyatov_zafar_official bilan bog'laning.""";
 
                 bot.alertMessage(botId, callbackQuery, warningMessage);
                 return;
